@@ -1,0 +1,135 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Data Entry Form</title>  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+            background-color: #f3f4f6;  
+            margin: 0;  
+            padding: 20px;  
+        }  
+        .container {  
+            max-width: 600px;  
+            margin: auto;  
+            background: white;  
+            padding: 20px;  
+            border-radius: 8px;  
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  
+        }  
+        h2 {  
+            text-align: center;  
+        }  
+        .form-group {  
+            margin-bottom: 15px;  
+        }  
+        label {  
+            display: block;  
+            margin-bottom: 5px;  
+        }  
+        input[type="text"],  
+        select {  
+            width: 100%;  
+            padding: 10px;  
+            border: 1px solid #ccc;  
+            border-radius: 5px;  
+            box-sizing: border-box;  
+        }  
+        input[type="file"] {  
+            border: none;  
+        }  
+        button {  
+            width: 100%;  
+            padding: 10px;  
+            background: #0056b3;  
+            color: white;  
+            border: none;  
+            border-radius: 5px;  
+            font-size: 16px;  
+            cursor: pointer;  
+        }  
+        button:hover {  
+            background: #004494;  
+        }  
+        .summary {  
+            margin-top: 20px;  
+        }  
+    </style>  
+</head>  
+<body>  
+
+<div class="container">  
+    <h2>Data Entry Form</h2>  
+    <form id="dataEntryForm">  
+        <div class="form-group">  
+            <label for="name">Name:</label>  
+            <input type="text" id="name" name="name" required>  
+        </div>  
+        <div class="form-group">  
+            <label for="batch">Batch:</label>  
+            <select id="batch" name="batch" required>  
+                <option value="">Select a Batch</option>  
+                <option value="Batch A">Batch A</option>  
+                <option value="Batch B">Batch B</option>  
+                <option value="Batch C">Batch C</option>  
+                <option value="Batch D">Batch D</option>  
+            </select>  
+        </div>  
+        <div class="form-group">  
+            <label for="images">Upload Images (multiple files allowed):</label>  
+            <input type="file" id="images" name="images" accept="image/*" multiple required>  
+        </div>  
+        <button type="submit">Submit</button>  
+    </form>  
+
+    <div class="summary" id="summary">  
+        <h3>Summary of Uploaded Data</h3>  
+        <ul id="dataList"></ul>  
+    </div>  
+</div>  
+
+<script>  
+    document.getElementById('dataEntryForm').addEventListener('submit', function(event) {  
+        event.preventDefault();  
+        
+        const name = document.getElementById('name').value;  
+        const batch = document.getElementById('batch').value;  
+        const files = document.getElementById('images').files;  
+
+        // Prepare form data for submission  
+        const formData = new FormData();  
+        formData.append('name', name);  
+        formData.append('batch', batch);  
+
+        // Upload files  
+        for (let i = 0; i < files.length; i++) {  
+            formData.append('images', files[i]);  
+        }  
+
+        // Send data to Google Apps Script  
+        fetch('https://script.google.com/macros/s/AKfycbxsu3iHYDKGcvPSEKwewncws8HVyy4JjcccPt9Pt8m7g_Gm-_9fZjWUif0vGmHgg-ABwQ/exec', {  
+            method: 'POST',  
+            body: formData  
+        })  
+        .then(response => response.text())  
+        .then(data => {  
+            console.log(data); // Log the response for debugging  
+            // Add summary to the DOM  
+            let listItem = document.createElement('li');  
+            listItem.textContent = `Name: ${name}, Batch: ${batch}, Images: ${Array.from(files).map(file => file.name).join(', ')}`;  
+            document.getElementById('dataList').appendChild(listItem);  
+
+            // Reset the form after submission  
+            document.getElementById('dataEntryForm').reset();  
+        })  
+        .catch(error => {  
+            console.error('Error:', error);  
+        });  
+    });  
+</script>  
+
+</body>  
+</html>  
